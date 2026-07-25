@@ -8,7 +8,7 @@ const pointSchema = new mongoose.Schema(
       default: "LineString",
     },
     coordinates: {
-      type: [[Number]], // [ [lng, lat], [lng, lat], ... ]
+      type: [[Number]],
       default: [],
     },
   },
@@ -19,6 +19,18 @@ const walkSchema = new mongoose.Schema(
   {
     userId: {
       type: String,
+      required: true,
+    },
+    nombre: {
+      type: String,
+      required: true,
+    },
+    apellido: {
+      type: String,
+      required: true,
+    },
+    fecha: {
+      type: Date,
       required: true,
     },
     startTime: {
@@ -47,8 +59,6 @@ const walkSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// Sin índice 2dsphere por ahora — lo agregamos más adelante si hace falta
 
 const Walk = mongoose.model("Walk", walkSchema);
 

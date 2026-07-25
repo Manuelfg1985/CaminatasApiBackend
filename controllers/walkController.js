@@ -3,13 +3,15 @@ import Walk from "../models/Walk.js";
 // Iniciar una caminata
 export const startWalk = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { userId, nombre, apellido, fecha } = req.body;
 
     const newWalk = await Walk.create({
-      userId,
+      userId: req.userId, // viene del token verificado, no del body
+      nombre,
+      apellido,
+      fecha: fecha ? new Date(fecha) : new Date(),
       startTime: new Date(),
       status: "en_curso",
-      route: { type: "LineString", coordinates: [] },
     });
 
     res.status(201).json(newWalk);
@@ -61,9 +63,7 @@ export const finishWalk = async (req, res) => {
 // Listar caminatas de un usuario
 export const getWalks = async (req, res) => {
   try {
-    const { userId } = req.query;
-    const filter = userId ? { userId } : {};
-    const walks = await Walk.find(filter).sort({ startTime: -1 });
+    const walks = await Walk.find({ userId: req.userId }).sort({ startTime: -1 });
     res.json(walks);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener las caminatas", error: error.message });

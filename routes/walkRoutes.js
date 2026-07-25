@@ -1,4 +1,5 @@
 import express from "express";
+import { verifyToken } from "../middleware/auth.js";
 import {
   startWalk,
   addPoint,
@@ -9,10 +10,10 @@ import {
 
 const router = express.Router();
 
-router.post("/start", startWalk);
-router.patch("/:id/point", addPoint);
-router.patch("/:id/finish", finishWalk);
-router.get("/", getWalks);
-router.get("/:id", getWalkById);
+router.post("/start", verifyToken, startWalk);
+router.patch("/:id/point", verifyToken, addPoint);
+router.patch("/:id/finish", verifyToken, finishWalk);
+router.get("/", verifyToken, getWalks);
+router.get("/:id", verifyToken, getWalkById);
 
 export default router;
