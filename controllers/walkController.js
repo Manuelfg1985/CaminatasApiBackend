@@ -3,10 +3,22 @@ import Walk from "../models/Walk.js";
 // Iniciar una caminata
 export const startWalk = async (req, res) => {
   try {
-    const { userId, nombre, apellido, fecha } = req.body;
+    const { nombre, apellido, fecha } = req.body;
+
+    // Validar que no haya otra caminata en curso para este usuario
+    const activeWalk = await Walk.findOne({
+      userId: req.userId,
+      status: "en_curso",
+    });
+
+    if (activeWalk) {
+      return res.status(400).json({
+        message: "Ya tenés una caminata en curso. Finalizala antes de iniciar una nueva.",
+      });
+    }
 
     const newWalk = await Walk.create({
-      userId: req.userId, // viene del token verificado, no del body
+      userId: req.userId,
       nombre,
       apellido,
       fecha: fecha ? new Date(fecha) : new Date(),
@@ -16,7 +28,10 @@ export const startWalk = async (req, res) => {
 
     res.status(201).json(newWalk);
   } catch (error) {
-    res.status(500).json({ message: "Error al iniciar la caminata", error: error.message });
+    res.status(500).json({
+      message: "Error al iniciar la caminata",
+      error: error.message,
+    });
   }
 };
 
