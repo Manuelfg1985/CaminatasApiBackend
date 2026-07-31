@@ -109,3 +109,58 @@ function haversine(lat1, lon1, lat2, lon2) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
+export const deleteWalk = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const walk = await Walk.findById(id);
+
+    if (!walk) {
+      return res.status(404).json({ message: "Caminata no encontrada" });
+    }
+
+    if (walk.userId !== req.userId) {
+      return res.status(403).json({ message: "No tenés permiso para eliminar esta caminata" });
+    }
+
+    await Walk.findByIdAndDelete(id);
+    res.json({ message: "Caminata eliminada" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al eliminar", error: error.message });
+  }
+};
+
+export const updateWalkStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const walk = await Walk.findById(id);
+
+    if (!walk) {
+      return res.status(404).json({ message: "Caminata no encontrada" });
+    }
+
+    if (walk.userId !== req.userId) {
+      return res.status(403).json({ message: "No tenés permiso para modificar esta caminata" });
+    }
+
+    if (status === "finalizada" && walk.status === "en_curso") {
+      // Calcular distancia y duración si no está hecha
+      if (!walk.endTime) {
+        walk.endTime = new Date();
+      }
+      if (walk.route?.coordinates && walk.route.coordinates.length > 1) {
+        walk.distanceMeters = calculateDistance(walk.route.coordinates);
+        walk.durationSeconds = Math.floor(
+          (new Date(walk.endTime) - new Date(walk.startTime)) / 1000
+        );
+      }
+    }
+
+    walk.status = status;
+    await walk.save();
+    res.json(walk);
+  } catch (error) {
+    res.status(500).json({ message: "Error al actualizar estado", error: error.message });
+  }
+};
