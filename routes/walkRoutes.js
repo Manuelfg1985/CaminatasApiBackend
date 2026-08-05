@@ -19,5 +19,6 @@ router.get("/", verifyToken, getWalks);
 router.get("/:id", verifyToken, getWalkById);
 router.delete("/:id", verifyToken, deleteWalk);
 router.patch("/:id/status", verifyToken, updateWalkStatus);
+router.get("/active/check", verifyToken, checkActiveWalk);
 
 export default router;

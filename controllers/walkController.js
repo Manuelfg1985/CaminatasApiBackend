@@ -179,3 +179,16 @@ export const updateWalkStatus = async (req, res) => {
     res.status(500).json({ message: "Error al actualizar estado", error: error.message });
   }
 };
+
+export const checkActiveWalk = async (req, res) => {
+  try {
+    const activeWalk = await Walk.findOne({
+      userId: req.userId,
+      status: "en_curso",
+    });
+
+    res.json({ hasActive: !!activeWalk });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
